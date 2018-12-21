@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Group 13: Dana Chen and Rita Zhou" />
+
+
+<title>More information</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Do Wealthier Countries Have More Terrorist Attacks?</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Blogpost</a>
+</li>
+<li>
+  <a href="more_info.html">More info</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">More information</h1>
+<h4 class="author"><em>Group 13: Dana Chen and Rita Zhou</em></h4>
+<h4 class="date"><em>Last updated on 2018-12-21</em></h4>
+
+</div>
+
+
+<div id="comparing-terrorist-attacks-by-region-and-income-group" class="section level1">
+<h1>Comparing Terrorist Attacks by Region and Income Group</h1>
+<p><img src="more_info_files/figure-html/unnamed-chunk-3-1.png" width="768" /></p>
+<p>This barplot gives us a better sense of the relationship between number of terrorist attacks, region, and income group. The Middle East &amp; North Africa appears to have had the highest rate of terrorist attacks in 2016, followed by South Asia and Sub-Saharan Africa. A notable difference between the distribution of terrorist attacks across income groups in these regions is that in Sub-Saharan Africa and South Asia, the majority of terrorist attacks took place in low or lower middle income countries, whereas in the Middle East &amp; North Africa, all attacks took place in high or upper middle income countries. The comparatively high rate of terrorist attacks in the Middle East &amp; North Africa region, relative to other predominantly high and upper middle income regions, can be explained by the presence of terrorist groups and political conflict in wealthy oil-producing countries such as Iraq, Turkey, and Saudi Arabia.</p>
+<p>Due to the myriad of factors that influence a country’s rate of terrorist attacks, there is no clear, direct correlation between income group and number of terrorist attacks. Some regions with high rates of terrorist attacks tend to be poorer–this is unsurprising given that poorer countries are more vulnerable to political instability. However, some high and upper middle income countries outside of the Middle East &amp; North Africa have noticeable rates of terrorist attacks as well. Although the number of attacks in high income regions such as Western Europe and North America is far lower than that in lower income regions, it is notably higher than that in other developed regions such as East Asia and Australasia &amp; Oceania. There is no singular explanation for these higher rates, although a possible reason is conflict associated with refugee and immigration policies and right-wing extremism. Finally, it is important to note that terrorist attacks are not limited to Islamist extremism–they are perpetrated by a wide range of extremist political groups and individuals with varying motives.</p>
+</div>
+<div id="how-do-life-expectancy-and-income-group-affect-terrorism" class="section level1">
+<h1>How Do Life Expectancy and Income Group Affect Terrorism?</h1>
+<p><img src="more_info_files/figure-html/unnamed-chunk-5-1.png" width="768" /></p>
+<p>In this scatterplot, we examine the relationship between a country’s life expectancy and number of terrorist attacks, faceted by income group. As expected, average life expectancy tends to be higher in wealthier countries and lower in poorer countries. In each income group except for high income countries, there is a negative association between life expectancy and number of terrorist attacks. This means that as the average life expectancy of a country increases, the number of terrorist attacks decreases. This could be explained, in part, by the fact that less developed countries with lower life expectancies are more susceptible to political instability, or that countries with worse economic and political conditions naturally have lower average life expectancies. However, it is important to acknowledge that the negative association is quite low in the upper middle and low income groups, but is more significant in the lower middle income group.</p>
+<p>Surprisingly, there is a slight positive association between life expectancy and number of terrorist attacks in high income countries. There is no singular explanation for these results, but when analyzing the data, it appears that the countries in the high income group with the highest number of terrorist attacks are Saudi Arabia, the United Kingdom, and the United States. Saudi Arabia is wealthy because it the largest exporter of petroleum in the world,<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> but it is also the site of numerous radical Islamist groups, while the U.K. and U.S. experience terrorist attacks from groups ranging from right-wing extremists to Jihadi-inspired extremists.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<p>In sum, we find that in many cases, higher life expectancy and country income correlates with fewer terrorist attacks. However, there are several exceptions to this conclusion. This reveals that a country’s rate of terrorist attacks can be attributed a wide range of factors, many of which fall beyond the scope of our data and analysis.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>“Saudi Arabia facts and figures.” <em>Organization of the Petroleum Exporting Countries</em>, 2018, <a href="https://www.opec.org/opec_web/en/about_us/169.htm" class="uri">https://www.opec.org/opec_web/en/about_us/169.htm</a>.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>“Terrorism.” <em>FBI</em>, <a href="https://www.fbi.gov/investigate/terrorism" class="uri">https://www.fbi.gov/investigate/terrorism</a>. Accessed 19 Dec 2018<a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

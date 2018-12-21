@@ -1,0 +1,124 @@
+---
+title: "More information"
+author: "Group 13: Dana Chen and Rita Zhou"
+date: "Last updated on `r Sys.Date()`"
+output:
+  html_document:
+    highlight: tango
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Set R Markdown chunk defaults:
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, 
+  fig.width = 16/2, fig.height = 9/2
+)
+```
+
+# Comparing Terrorist Attacks by Region and Income Group
+
+```{r}
+# Load packages
+library(tidyverse)
+library(ggplot2)
+
+# Load datasets
+terrorism <- read_csv("globalterrorismdb_0718dist 2.csv")
+life_expectancy <- read_csv("life_expectancy.csv")
+development <- read_csv("Country.csv")
+
+```
+
+```{r}
+# select columns we need from development
+development_new <- development %>% 
+  select(TableName, IncomeGroup) %>% 
+  na.omit(IncomeGroup) %>% 
+  rename(Country_Name = TableName)
+# Rename "High income: nonOECD" and "High income: OECD" to "High income"
+development_new$IncomeGroup <- gsub("High income: nonOECD", "High income", 
+                                   development_new$IncomeGroup)
+development_new$IncomeGroup <- gsub("High income: OECD", "High income", 
+                                   development_new$IncomeGroup)
+
+# select and rename columns in development_new
+development_region <- development_new %>% 
+  rename(country_txt = Country_Name) %>% 
+  select(country_txt, IncomeGroup)
+
+# reorder income group levels
+income_levels <- c("High income", "Upper middle income", "Lower middle income", "Low income")
+
+# join terrorism and development_region datasets
+terrorism_region <- terrorism %>%
+  select(eventid, country_txt, iyear, region_txt) %>%
+  filter(iyear == 2016) %>% 
+  inner_join(development_region, by = "country_txt") %>% 
+  mutate(IncomeGroup = factor(IncomeGroup, levels = income_levels))
+
+# barplot
+ggplot(data = terrorism_region, aes(x = region_txt, fill = IncomeGroup)) +
+  geom_bar() +
+  coord_flip() +
+  labs(x = "Region", y = "Number of Attacks", title = "Terrorist Attacks by Region, 2016")
+
+```
+
+This barplot gives us a better sense of the relationship between number of terrorist attacks, region, and income group. The Middle East & North Africa appears to have had the highest rate of terrorist attacks in 2016, followed by South Asia and Sub-Saharan Africa. A notable difference between the distribution of terrorist attacks across income groups in these regions is that in Sub-Saharan Africa and South Asia, the majority of terrorist attacks took place in low or lower middle income countries, whereas in the Middle East & North Africa, all attacks took place in high or upper middle income countries. The comparatively high rate of terrorist attacks in the Middle East & North Africa region, relative to other predominantly high and upper middle income regions, can be explained by the presence of terrorist groups and political conflict in wealthy oil-producing countries such as Iraq, Turkey, and Saudi Arabia. 
+
+Due to the myriad of factors that influence a country’s rate of terrorist attacks, there is no clear, direct correlation between income group and number of terrorist attacks. Some regions with high rates of terrorist attacks tend to be poorer--this is unsurprising given that poorer countries are more vulnerable to political instability. However, some high and upper middle income countries outside of the Middle East & North Africa have noticeable rates of terrorist attacks as well. Although the number of attacks in high income regions such as Western Europe and North America is far lower than that in lower income regions, it is notably higher than that in other developed regions such as East Asia and Australasia & Oceania. There is no singular explanation for these higher rates, although a possible reason is conflict associated with refugee and immigration policies and right-wing extremism. Finally, it is important to note that terrorist attacks are not limited to Islamist extremism--they are perpetrated by a wide range of extremist political groups and individuals with varying motives.
+
+# How Do Life Expectancy and Income Group Affect Terrorism?
+
+```{r}
+# Count number of terrorist attacks in each country in 2016
+terrorism_new <- terrorism %>% 
+  select(eventid, iyear, country_txt) %>% 
+  filter(iyear == 2016) %>%
+  group_by(country_txt, eventid) %>% 
+  summarize(n = n()) %>% 
+  group_by(country_txt) %>% 
+  summarize(n = n())
+names(terrorism_new) [1] <- "Country_Name"
+
+# select only the columns we need from life_expectancy
+life_expectancy_new <- life_expectancy %>% 
+  select("Country Name", "2016") %>% 
+  na.omit(2016) %>% 
+  rename(Country_Name = "Country Name") %>% 
+  # tidy life expectancy data
+  gather(key = year, value = life_expectancy, -"Country_Name") %>% 
+  select(Country_Name, life_expectancy)
+
+# join terrorism_new with life_expectancy_new
+terrorism_life_expec <- terrorism_new %>% 
+  inner_join(life_expectancy_new, by = "Country_Name")
+
+# Join terrorism_life_expec with development_new
+country_income <- terrorism_life_expec %>% 
+  inner_join(development_new, by = "Country_Name") %>% 
+  mutate(IncomeGroup = factor(IncomeGroup, levels = income_levels))
+
+```
+
+```{r}
+# scatterplot comparing number of incidents and life expectancy, faceted by income group
+ggplot(data = country_income, mapping = aes(x = life_expectancy, y = n)) +
+  geom_point() +
+  facet_wrap(~IncomeGroup) +
+  scale_y_log10() +
+  geom_smooth(method='lm') +
+  labs(x = "Life Expectancy", y = "Number of Attacks", 
+       title = "Life Expectancy and Terrorist Attacks by Income Group, 2016") 
+
+```
+
+In this scatterplot, we examine the relationship between a country’s life expectancy and number of terrorist attacks, faceted by income group. As expected, average life expectancy tends to be higher in wealthier countries and lower in poorer countries. In each income group except for high income countries, there is a negative association between life expectancy and number of terrorist attacks. This means that as the average life expectancy of a country increases, the number of terrorist attacks decreases. This could be explained, in part, by the fact that less developed countries with lower life expectancies are more susceptible to political instability, or that countries with worse economic and political conditions naturally have lower average life expectancies. However, it is important to acknowledge that the negative association is quite low in the upper middle and low income groups, but is more significant in the lower middle income group.
+
+Surprisingly, there is a slight positive association between life expectancy and number of terrorist attacks in high income countries. There is no singular explanation for these results, but when analyzing the data, it appears that the countries in the high income group with the highest number of terrorist attacks are Saudi Arabia, the United Kingdom, and the United States. Saudi Arabia is wealthy because it the largest exporter of petroleum in the world,^[“Saudi Arabia facts and figures.” *Organization of the Petroleum Exporting Countries*, 2018, https://www.opec.org/opec_web/en/about_us/169.htm.] but it is also the site of numerous radical Islamist groups, while the U.K. and U.S. experience terrorist attacks from groups ranging from right-wing extremists to Jihadi-inspired extremists.^[“Terrorism.” *FBI*, https://www.fbi.gov/investigate/terrorism. Accessed 19 Dec 2018]
+
+In sum, we find that in many cases, higher life expectancy and country income correlates with fewer terrorist attacks. However, there are several exceptions to this conclusion. This reveals that a country’s rate of terrorist attacks can be attributed a wide range of factors, many of which fall beyond the scope of our data and analysis.

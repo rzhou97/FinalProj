@@ -1,0 +1,128 @@
+---
+title: "Do Wealthier Countries Have More Terrorist Attacks?"
+author: "Group 13: Dana Chen and Rita Zhou"
+date: "Last updated on `r Sys.Date()`"
+output:
+  html_document:
+    highlight: tango
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Set R Markdown chunk defaults:
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, 
+  fig.width = 16/2, fig.height = 9/2
+)
+```
+
+```{r}
+# Load packages
+library(tidyverse)
+library(ggplot2)
+library(maps)
+library(sf)
+library(leaflet)
+
+# Load datasets
+terrorism <- read_csv("globalterrorismdb_0718dist 2.csv")
+life_expectancy <- read_csv("life_expectancy.csv")
+development <- read_csv("Country.csv")
+
+```
+
+# Introduction
+
+In the past two decades, we have been constantly informed about terrorist attack incidents. Terrorists attacks not only happen in wars--they also occur in our daily lives.  **To better understand terrorist attacks and their patterns, we analyze the relationship between attacks and life expectancy, geographic locations and stage of economic developments.**
+
+To conduct the analysis, we use three datasets: Global Terrorism Database, World Bank Data of Life Expectancy and World Development Indicators.^[“Global Terrorism Database Codebook.” *National Consortium for the Study of Terrorism and Responses to Terrorism*, 2018, https://www.start.umd.edu/gtd/downloads/Codebook.pdf] The Global Terrorism Database includes each individual attack with its location and numbers of people killed and wounded. Data from this dataset is collected from unclassified media articles. Therefore data collection is influenced by fluctuations in access to media coverage over both time and place, resulting in missing values in the dataset. The rest of the two datasets are from the World Bank. The World bank data records the life expectancy of each country. The World Development Indicators sort countries into different groups of economic development.
+
+# Mapping Terrorist Attacks
+
+```{r}
+# select only the columns we need from life_expectancy
+life_expectancy_new <- life_expectancy %>% 
+  select("Country Name", "2016") %>% 
+  na.omit(2016) %>% 
+  rename(Country_Name = "Country Name") %>% 
+  # tidy life expectancy data
+  gather(key = year, value = life_expectancy, -"Country_Name") %>% 
+  select(Country_Name, life_expectancy)
+
+# select columns we need from development
+development_new <- development %>% 
+  select(TableName, IncomeGroup) %>% 
+  na.omit(IncomeGroup) %>% 
+  rename(Country_Name = TableName)
+# Rename "High income: nonOECD" and "High income: OECD" to "High income"
+development_new$IncomeGroup <- gsub("High income: nonOECD", "High income", 
+                                   development_new$IncomeGroup)
+development_new$IncomeGroup <- gsub("High income: OECD", "High income", 
+                                   development_new$IncomeGroup)
+
+```
+
+
+```{r}
+# dataframe for map
+terrorism_map <- terrorism %>%
+  select(iyear, country_txt, latitude, longitude, nkill, nwound) %>% 
+  filter(iyear == 2016) %>% 
+  rename(Country_Name = country_txt) %>% 
+  inner_join(life_expectancy_new, by = "Country_Name") %>% 
+  inner_join(development_new, by = "Country_Name")
+
+# layeres for map
+high_income <- filter(terrorism_map, IncomeGroup %in% c("High income: OECD", 
+                                                        "High income: nonOECD"))
+upper_middle <- filter(terrorism_map, IncomeGroup == "Upper middle income")
+lower_middle <- filter(terrorism_map, IncomeGroup == "Lower middle income")
+low_income <- filter(terrorism_map, IncomeGroup == "Low income")
+```
+
+```{r}
+# Interactive Map of Terrorist Attacks
+interactive_map <- leaflet() %>%
+  addProviderTiles(provider = "Esri.WorldStreetMap") %>%
+  addCircleMarkers(data = terrorism_map,
+                   ~longitude, ~latitude , radius = 2, 
+                   clusterOptions = markerClusterOptions(), group = "All Income Groups", 
+                   popup = ~paste0("<b> Number Killed: <b> ",nkill,"</b>",
+                    "<br/><b> Number Injured: <b>  ",nwound, "</b>",
+                    "<br/><b> Life Expectancy: <b>  ", life_expectancy)) %>%
+  addProviderTiles(provider = "Esri.WorldStreetMap") %>%
+  addCircleMarkers(data = high_income,
+    ~longitude, ~latitude , radius = 2, 
+    clusterOptions = markerClusterOptions(), group ="High Income", 
+    popup = ~paste0("<b> Number Killed: <b> ",nkill,"</b>",
+                    "<br/><b> Number Injured: <b>  ",nwound, "</b>",
+                    "<br/><b> Life Expectancy: <b>  ", life_expectancy)) %>% 
+  addCircleMarkers(data = upper_middle,
+                    ~longitude, ~latitude , radius = 2, 
+                    clusterOptions = markerClusterOptions(), group ="Upper Middle Income",
+                    popup = ~paste0("<b> Number Killed: <b> ",nkill,"</b>",
+                                   "<br/><b> Number Injured: <b>  ",nwound, "</b>",
+                                   "<br/><b> Life Expectancy: <b>  ", life_expectancy)) %>%
+  addCircleMarkers(data = lower_middle,
+                   ~longitude, ~latitude , radius = 2, 
+                   clusterOptions = markerClusterOptions(), group ="Lower Middle Income",
+                   popup = ~paste0("<b> Number Killed: <b> ",nkill,"</b>",
+                                   "<br/><b> Number Injured: <b>  ",nwound, "</b>",
+                                   "<br/><b> Life Expectancy: <b>  ", life_expectancy)) %>%
+  addCircleMarkers(data = low_income,
+                   ~longitude, ~latitude , radius = 2, 
+                   clusterOptions = markerClusterOptions(), group ="Low Income",
+                   popup = ~paste0("<b> Number Killed: <b> ",nkill,"</b>",
+                                   "<br/><b> Number Injured: <b>  ",nwound, "</b>",
+                                   "<br/><b> Life Expectancy: <b>  ", life_expectancy)) %>% 
+  addLayersControl(baseGroups = 
+                    c("All Income Groups","High Income", "Upper Middle Income", 
+                      "Lower Middle Income", "Low Income"))
+interactive_map
+
+```
+
+Our interactive map allows us to see the exact number of terrorist attacks in each region with pop ups including number of people killed, wounded and life expectancy of the country in which the attack happens, allowing us to observe patterns. We included a layer for income group. Without any layers, terrorist attacks happen mostly in the Middle East and North Africa, following by South Asia and Europe. When we apply layers to the map, we found that attacks in high income and upper and middle income countries cluster mainly around Europe and the Middle East. Attacks in lower middle income countries mostly occur in Asia, and attacks in low income countries occur mostly in North Africa. This observed pattern shows that upper middle income countries contribute a lot in terrorist attack numbers. 
